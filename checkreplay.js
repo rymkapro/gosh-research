@@ -708,7 +708,7 @@ const checkReplay = async () => {
         chunk.map(async (treepath, i) => {
             await retry(async () => {
                 const start = Math.round(Date.now() / 1000)
-                await wallet.run('deployNewSnapshot', {
+                const { transaction } = await wallet.run('deployNewSnapshot', {
                     branch: 'main',
                     commit: '',
                     repo: '0:1aca78c9d37b0fd15a8a9af5dda00f88d87f303e824170e02e6596f6f930163a',
@@ -717,7 +717,7 @@ const checkReplay = async () => {
                     snapshotipfs: null,
                 })
                 const end = Math.round(Date.now() / 1000)
-                console.log(`> Snapshot ${i}: ${end - start}s`)
+                console.log(`> Snapshot ${i}: ${end - start}s; TX: ${transaction.id}`)
             }, 3)
         }),
     )
