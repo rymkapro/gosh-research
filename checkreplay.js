@@ -734,7 +734,7 @@ const checkReplay = async () => {
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: EXPIRED`,
                     `\tMsgID: ${e.data.message_id}`,
-                    `\tCode: ${e.data.local_error.data.exit_code}`,
+                    `(${e.data.local_error.data.exit_code})`,
                 )
             }
         }),
