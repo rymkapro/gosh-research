@@ -611,9 +611,9 @@ const WALLET_ABI = {
         },
     ],
     data: [
-        { key: 1, name: '_goshroot', type: 'address' },
-        { key: 2, name: '_goshdao', type: 'address' },
-        { key: 3, name: '_index', type: 'uint128' },
+        { key: 1, name: '_goshdao', type: 'address' },
+        { key: 2, name: '_index', type: 'uint128' },
+        { key: 3, name: '_goshroot', type: 'address' },
     ],
     events: [],
     fields: [
@@ -634,6 +634,9 @@ const WALLET_ABI = {
         { name: 'm_tokenWallet', type: 'address' },
         { name: 'm_tokenBalance', type: 'uint128' },
         { name: 'm_tokenWalletCode', type: 'cell' },
+        { name: '_pubaddr', type: 'address' },
+        { name: '_goshdao', type: 'address' },
+        { name: '_index', type: 'uint128' },
         { name: 'nonce', type: 'uint256' },
         { name: 'lockerTip3Wallet', type: 'address' },
         { name: 'initialized', type: 'bool' },
@@ -654,9 +657,6 @@ const WALLET_ABI = {
         { name: '_access', type: 'optional(uint256)' },
         { name: '_goshroot', type: 'address' },
         { name: '_rootpubaddr', type: 'address' },
-        { name: '_pubaddr', type: 'address' },
-        { name: '_goshdao', type: 'address' },
-        { name: '_index', type: 'uint128' },
         { name: '_nameDao', type: 'string' },
         { name: '_flag', type: 'bool' },
         { name: 'm_RepositoryCode', type: 'cell' },
@@ -677,7 +677,7 @@ const WALLET_ABI = {
     ],
 }
 const WALLET_ADDRESS =
-    '0:cd0c7f17216090709115538e3c4ac22938cbbf8deb1bf7e620ad6222ef26f536'
+    '0:e1430709702f73e330b4f8903522a843a09ce66e7519333e24e26bc8b4e4b878'
 const WALLET_KEYS = {
     public: '7389d5f8218667cddeef649b38ad34404b615324a49b3a8872287e38f93db5e8',
     secret: '9617dc9b97d03d81cbfb84cde7c399f1059b94a06cd0d530e8e31a0dd9d87df1',
@@ -690,6 +690,7 @@ const client = new TonClient({
         endpoints: ENDPOINTS,
         queries_protocol: NetworkQueriesProtocol.WS,
         sending_endpoint_count: ENDPOINTS.length,
+        message_retries_count: 0,
     },
 })
 
@@ -699,7 +700,7 @@ const wallet = new Account(
 )
 
 const checkReplay = async () => {
-    const chunk = Array.from(new Array(20)).map(
+    const chunk = Array.from(new Array(5)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
@@ -712,25 +713,28 @@ const checkReplay = async () => {
                 const { transaction } = await wallet.run('deployNewSnapshot', {
                     branch: 'main',
                     commit: '',
-                    repo: '0:1aca78c9d37b0fd15a8a9af5dda00f88d87f303e824170e02e6596f6f930163a',
+                    repo: '0:6cc49afbad24204ac4337e6efb09af640e81fefa90c8cb9b218d03e38dc15619',
                     name: treepath,
                     snapshotdata: '',
                     snapshotipfs: null,
                 })
+
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
                 console.log(
                     `> Snapshot ${i}:`,
-                    `\tRqT: ${rqTime.toLocaleTimeString()}`,
-                    `\tRsT: ${rsTime.toLocaleTimeString()}`,
-                    `\tTxT: ${transaction.now}`,
-                    `\t${end - start}s`,
+                    `\tRqTime: ${rqTime.toLocaleTimeString()}`,
+                    `\tRsTime: ${rsTime.toLocaleTimeString()}`,
+                    `\tTxTime: ${transaction.now}`,
+                    `\tDuration: ${end - start}s`,
                 )
-            } catch {
+            } catch (e) {
                 console.log(
                     `> Snapshot ${i}:`,
-                    `\tRqT: ${rqTime.toLocaleTimeString()}`,
-                    `\tRsT: EXPIRED`,
+                    `\tRqTime: ${rqTime.toLocaleTimeString()}`,
+                    `\tRsTime: EXPIRED`,
+                    `\tMsgID: ${e.data.message_id}`,
+                    `\tCode: ${e.data.local_error.data.exit_code}`,
                 )
             }
         }),
