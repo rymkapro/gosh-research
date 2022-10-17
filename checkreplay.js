@@ -706,7 +706,8 @@ const checkReplay = async () => {
     const start = Math.round(Date.now() / 1000)
     await Promise.all(
         chunk.map(async (treepath, i) => {
-            await retry(async () => {
+            const rqTime = new Date()
+            try {
                 const start = Math.round(Date.now() / 1000)
                 const { transaction } = await wallet.run('deployNewSnapshot', {
                     branch: 'main',
@@ -716,9 +717,22 @@ const checkReplay = async () => {
                     snapshotdata: '',
                     snapshotipfs: null,
                 })
+                const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
-                console.log(`> Snapshot ${i}: ${end - start}s; TX: ${transaction.id}`)
-            }, 3)
+                console.log(
+                    `> Snapshot ${i}:`,
+                    `\tRqT: ${rqTime.toLocaleTimeString()}`,
+                    `\tRsT: ${rsTime.toLocaleTimeString()}`,
+                    `\tTxT: ${transaction.now}`,
+                    `\t${end - start}s`,
+                )
+            } catch {
+                console.log(
+                    `> Snapshot ${i}:`,
+                    `\tRqT: ${rqTime.toLocaleTimeString()}`,
+                    `\tRsT: EXPIRED`,
+                )
+            }
         }),
     )
     const end = Math.round(Date.now() / 1000)
