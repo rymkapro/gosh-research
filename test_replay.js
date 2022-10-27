@@ -659,10 +659,10 @@ const WALLET_ABI = {
     ],
 }
 const WALLET_ADDRESS =
-    '0:50484bd55e725ebcad4d053c8d7cfd4550bb67eadde40cdbb9b898e1562b6677'
+    '0:f0084a1164ab9fec87c023cc443383349ac2cbbae5ab2eac4a83c8a466276371'
 const WALLET_KEYS = {
-    public: '97b7acfad04df79aaa13cac88e68a207619491f9fc5b4c4302d013235ed58030',
-    secret: '159a8fe601c786fae8c802fe49e91188d157a48889a5fb980bc4f99ad0ce8c0a',
+    public: '7389d5f8218667cddeef649b38ad34404b615324a49b3a8872287e38f93db5e8',
+    secret: '9617dc9b97d03d81cbfb84cde7c399f1059b94a06cd0d530e8e31a0dd9d87df1',
 }
 const ENDPOINTS = ['https://vps23.ton.dev']
 
@@ -682,7 +682,7 @@ const wallet = new Account(
 )
 
 const checkReplay = async () => {
-    const chunk = Array.from(new Array(1000)).map(
+    const chunk = Array.from(new Array(100)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
@@ -695,7 +695,7 @@ const checkReplay = async () => {
                 const { transaction } = await wallet.run('deployNewSnapshot', {
                     branch: 'main',
                     commit: '',
-                    repo: '0:33fb718f881b55938877b817b40078bfa209fee110d3078dfe82a1869d66bf33',
+                    repo: '0:e804269af056e7eb3cf373310fd6c6cd50833a2920e223a65a970041ea0422c2',
                     name: treepath,
                     snapshotdata: '',
                     snapshotipfs: null,
