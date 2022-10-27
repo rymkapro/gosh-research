@@ -23,8 +23,7 @@ const WALLET_ABI = {
                 { name: 'codeDiff', type: 'cell' },
                 { name: 'contentSignature', type: 'cell' },
                 { name: 'limit_wallets', type: 'uint128' },
-                { name: 'limit_time', type: 'uint128' },
-                { name: 'limit_messages', type: 'uint128' },
+                { name: 'access', type: 'optional(uint256)' },
                 { name: 'lockerCode', type: 'cell' },
                 { name: 'tokenWalletCode', type: 'cell' },
                 { name: 'platformCode', type: 'cell' },
@@ -119,14 +118,6 @@ const WALLET_ABI = {
                     name: 'previous',
                     type: 'optional(tuple)',
                 },
-            ],
-            outputs: [],
-        },
-        {
-            name: 'setTombstone',
-            inputs: [
-                { name: 'nameRepo', type: 'string' },
-                { name: 'description', type: 'string' },
             ],
             outputs: [],
         },
@@ -246,11 +237,7 @@ const WALLET_ABI = {
         },
         {
             name: 'setConfig',
-            inputs: [
-                { name: 'limit_wallets', type: 'uint128' },
-                { name: 'limit_time', type: 'uint128' },
-                { name: 'limit_messages', type: 'uint128' },
-            ],
+            inputs: [{ name: 'limit_wallets', type: 'uint128' }],
             outputs: [],
         },
         {
@@ -431,6 +418,11 @@ const WALLET_ABI = {
             name: 'getAccess',
             inputs: [],
             outputs: [{ name: 'value0', type: 'optional(uint256)' }],
+        },
+        {
+            name: 'getTombstone',
+            inputs: [],
+            outputs: [{ name: 'value0', type: 'bool' }],
         },
         {
             name: 'onTokenWalletDeployed',
@@ -618,7 +610,6 @@ const WALLET_ABI = {
     events: [],
     fields: [
         { name: '_pubkey', type: 'uint256' },
-        { name: '_timestamp', type: 'uint64' },
         { name: '_constructorFlag', type: 'bool' },
         { name: 'messages', type: 'map(uint32,map(uint256,bool))' },
         {
@@ -659,28 +650,19 @@ const WALLET_ABI = {
         { name: '_rootpubaddr', type: 'address' },
         { name: '_nameDao', type: 'string' },
         { name: '_flag', type: 'bool' },
-        { name: 'm_RepositoryCode', type: 'cell' },
-        { name: 'm_CommitCode', type: 'cell' },
-        { name: 'm_WalletCode', type: 'cell' },
-        { name: 'm_TagCode', type: 'cell' },
-        { name: 'm_SnapshotCode', type: 'cell' },
-        { name: 'm_codeTree', type: 'cell' },
-        { name: 'm_codeDiff', type: 'cell' },
-        { name: 'm_contentSignature', type: 'cell' },
+        { name: '_code', type: 'map(uint8,cell)' },
         { name: 'counter', type: 'uint128' },
         { name: '_last_time', type: 'uint128' },
-        { name: '_limit_wallets', type: 'uint128' },
-        { name: '_limit_messages', type: 'uint128' },
-        { name: '_limit_time', type: 'uint128' },
         { name: '_walletcounter', type: 'uint128' },
+        { name: '_limit_wallets', type: 'uint128' },
         { name: '_tombstone', type: 'bool' },
     ],
 }
 const WALLET_ADDRESS =
-    '0:e1430709702f73e330b4f8903522a843a09ce66e7519333e24e26bc8b4e4b878'
+    '0:50484bd55e725ebcad4d053c8d7cfd4550bb67eadde40cdbb9b898e1562b6677'
 const WALLET_KEYS = {
-    public: '7389d5f8218667cddeef649b38ad34404b615324a49b3a8872287e38f93db5e8',
-    secret: '9617dc9b97d03d81cbfb84cde7c399f1059b94a06cd0d530e8e31a0dd9d87df1',
+    public: '97b7acfad04df79aaa13cac88e68a207619491f9fc5b4c4302d013235ed58030',
+    secret: '159a8fe601c786fae8c802fe49e91188d157a48889a5fb980bc4f99ad0ce8c0a',
 }
 const ENDPOINTS = ['https://vps23.ton.dev']
 
@@ -700,7 +682,7 @@ const wallet = new Account(
 )
 
 const checkReplay = async () => {
-    const chunk = Array.from(new Array(5)).map(
+    const chunk = Array.from(new Array(1000)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
@@ -713,7 +695,7 @@ const checkReplay = async () => {
                 const { transaction } = await wallet.run('deployNewSnapshot', {
                     branch: 'main',
                     commit: '',
-                    repo: '0:6cc49afbad24204ac4337e6efb09af640e81fefa90c8cb9b218d03e38dc15619',
+                    repo: '0:33fb718f881b55938877b817b40078bfa209fee110d3078dfe82a1869d66bf33',
                     name: treepath,
                     snapshotdata: '',
                     snapshotipfs: null,
@@ -722,15 +704,16 @@ const checkReplay = async () => {
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
                 console.log(
-                    `> Snapshot ${i}:`,
+                    `> Snapshot ${treepath}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: ${rsTime.toLocaleTimeString()}`,
                     `\tTxTime: ${transaction.now}`,
                     `\tDuration: ${end - start}s`,
                 )
             } catch (e) {
+                console.log(e.message)
                 console.log(
-                    `> Snapshot ${i}:`,
+                    `> Snapshot ${treepath}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: EXPIRED`,
                     `\tMsgID: ${e.data.message_id}`,
@@ -741,28 +724,6 @@ const checkReplay = async () => {
     )
     const end = Math.round(Date.now() / 1000)
     console.log(`\nChunk total time: ${end - start}s`)
-}
-
-const retry = async (fn, maxAttempts) => {
-    const delay = (fn, ms) => {
-        return new Promise((resolve) => setTimeout(() => resolve(fn()), ms))
-    }
-
-    const execute = async (attempt) => {
-        try {
-            return await fn()
-        } catch (err) {
-            if (attempt <= maxAttempts) {
-                const nextAttempt = attempt + 1
-                const delayInMs = 2000
-                console.error(`Retrying after ${delayInMs} ms due to:`, err)
-                return delay(() => execute(nextAttempt), delayInMs)
-            } else {
-                throw err
-            }
-        }
-    }
-    return execute(1)
 }
 
 checkReplay()
