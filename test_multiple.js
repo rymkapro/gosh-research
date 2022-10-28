@@ -1,5 +1,5 @@
 const process = require('process')
-const { Account } = require('@eversdk/appkit')
+const { Account, AccountType } = require('@eversdk/appkit')
 const { TonClient, NetworkQueriesProtocol, signerKeys } = require('@eversdk/core')
 const { libNode } = require('@eversdk/lib-node')
 
@@ -681,30 +681,73 @@ const wallet = new Account(
     { client, address: WALLET_ADDRESS, signer: signerKeys(WALLET_KEYS) },
 )
 
-const testReplay = async () => {
-    const chunk = Array.from(new Array(100)).map(
-        (_, index) => `filename-${Date.now()}-${index}`,
+const testMultipleWallets = async () => {
+    // Deploy sub wallets
+    console.log('PREPARE WALLETS')
+    const subwallets = await Promise.all(
+        Array.from(new Array(10)).map(async (_, index) => {
+            const result = await wallet.runLocal('getWalletAddr', { index })
+            const address = result.decoded.output.value0
+            const subwallet = new Account(
+                { abi: WALLET_ABI },
+                { client, address, signer: signerKeys(WALLET_KEYS) },
+            )
+
+            const account = await subwallet.getAccount()
+            if (account.acc_type !== AccountType.active) {
+                await wallet.run('deployWallet', {})
+            }
+            console.log(
+                `  > Wallet deployed`,
+                `\tIndex: ${index}`,
+                `\tAddress: ${address}`,
+            )
+
+            return subwallet
+        }),
     )
 
+    // Generate message params chunks
+    console.log('\nPREPARE CHUNKS')
+    const chunkLength = 20
+    const chunks = []
+    const date = Date.now()
+    for (let i = 0; i < subwallets.length; i++) {
+        const chunk = Array.from(new Array(chunkLength)).map((_, index) => ({
+            branch: 'main',
+            commit: '',
+            repo: '0:e804269af056e7eb3cf373310fd6c6cd50833a2920e223a65a970041ea0422c2',
+            name: `filename-${date}-${chunks.length}-${index}`,
+            snapshotdata: '',
+            snapshotipfs: null,
+        }))
+        chunks.push(chunk)
+    }
+    console.log('  > Chunks', `\tTotal: ${chunks.length}`, `\tEach: ${chunkLength}`)
+
+    // Send message chunk to each wallet
+    console.log('\nSEND CHUNKS')
     const start = Math.round(Date.now() / 1000)
     await Promise.all(
-        chunk.map(async (treepath, i) => {
+        chunks.map(async (chunk, i) => {
+            await _chunkSend(chunk, subwallets[i])
+        }),
+    )
+    const end = Math.round(Date.now() / 1000)
+    console.log(`Total time: ${end - start}s`)
+}
+
+const _chunkSend = async (chunk, wallet) => {
+    await Promise.all(
+        chunk.map(async (params) => {
             const rqTime = new Date()
             try {
                 const start = Math.round(Date.now() / 1000)
-                const { transaction } = await wallet.run('deployNewSnapshot', {
-                    branch: 'main',
-                    commit: '',
-                    repo: '0:e804269af056e7eb3cf373310fd6c6cd50833a2920e223a65a970041ea0422c2',
-                    name: treepath,
-                    snapshotdata: '',
-                    snapshotipfs: null,
-                })
-
+                const { transaction } = await wallet.run('deployNewSnapshot', params)
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
                 console.log(
-                    `> Snapshot ${treepath}:`,
+                    `  > ${params.name}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: ${rsTime.toLocaleTimeString()}`,
                     `\tTxTime: ${transaction.now}`,
@@ -713,7 +756,7 @@ const testReplay = async () => {
             } catch (e) {
                 console.log(e.message)
                 console.log(
-                    `> Snapshot ${treepath}:`,
+                    `  > ${params.name}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: EXPIRED`,
                     `\tMsgID: ${e.data.message_id}`,
@@ -722,11 +765,9 @@ const testReplay = async () => {
             }
         }),
     )
-    const end = Math.round(Date.now() / 1000)
-    console.log(`\nChunk total time: ${end - start}s`)
 }
 
-testReplay()
+testMultipleWallets()
     .then(() => process.exit(0))
     .catch((reason) => {
         console.log('Error', reason.message)
