@@ -710,8 +710,8 @@ const testReplay = async () => {
             try {
                 const start = Math.round(Date.now() / 1000)
                 const { shard_block_id } = await client.processing.send_message({
-                    message,
                     abi,
+                    message,
                     send_events: false,
                 })
                 const { transaction } = await client.processing.wait_for_transaction({
