@@ -6,6 +6,7 @@ const {
     abiSerialized,
 } = require('@eversdk/core')
 const { libNode } = require('@eversdk/lib-node')
+const fs = require('fs')
 
 const WALLET_ABI = {
     'ABI version': 2,
@@ -678,14 +679,18 @@ const client = new TonClient({
         sending_endpoint_count: ENDPOINTS.length,
         message_retries_count: 0,
     },
+    abi: {
+        message_expiration_timeout: 120000,
+    },
 })
 
 const testReplay = async () => {
     const abi = abiSerialized(WALLET_ABI)
-    const chunk = Array.from(new Array(100)).map(
+    const chunk = Array.from(new Array(2000)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
+    const logitems = []
     const result = { success: 0, fail: 0 }
     const start = Math.round(Date.now() / 1000)
     await Promise.all(
@@ -725,29 +730,45 @@ const testReplay = async () => {
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
                 result.success++
-                console.log(
-                    `> Snapshot ${treepath}:`,
-                    `\tRqTime: ${rqTime.toLocaleTimeString()}`,
-                    `\tRsTime: ${rsTime.toLocaleTimeString()}`,
-                    `\tTxTime: ${transaction.now}`,
-                    `\tDuration: ${end - start}s`,
-                )
+
+                const logitem = [
+                    '[OK]',
+                    `Snapshot ${treepath}`,
+                    `RqTime: ${rqTime.toLocaleTimeString()}`,
+                    `RsTime: ${rsTime.toLocaleTimeString()}`,
+                    `TxTime: ${transaction.now}`,
+                    `Duration: ${end - start}s`,
+                ]
+                console.log(logitem.join('\t'))
+                logitems.push(logitem.join('\t'))
             } catch (e) {
                 result.fail++
-                console.log(
-                    `> Snapshot ${treepath}:`,
-                    `\tRqTime: ${rqTime.toLocaleTimeString()}`,
-                    `\tRsTime: EXPIRED`,
-                    `\tMsgID: ${message_id}`,
+
+                const logitem = [
+                    '[ERR]',
+                    `Snapshot ${treepath}`,
+                    `RqTime: ${rqTime.toLocaleTimeString()}`,
+                    `RsTime: EXPIRED`,
+                    `MsgID: ${message_id}`,
                     `(${e.data?.local_error?.data?.exit_code})`,
-                    `\tError: ${e.message}`,
-                )
+                    `Error: ${e.message}`,
+                ]
+                console.log(logitem.join('\t'))
+                logitems.push(logitem.join('\t'))
             }
         }),
     )
     const end = Math.round(Date.now() / 1000)
-    console.log(`\nChunk total time: ${end - start}s`)
-    console.log(`Success/Fail: ${result.success}/${result.fail}`)
+
+    const toTime = `\nChunk total time: ${end - start}s`
+    console.log(toTime)
+    logitems.push(toTime)
+
+    const toStat = `Success/Fail: ${result.success}/${result.fail}`
+    console.log(toStat)
+    logitems.push(toStat)
+
+    fs.writeFileSync(`./output/${Date.now()}.log`, logitems.join('\n'))
 }
 
 testReplay()
