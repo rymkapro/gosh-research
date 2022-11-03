@@ -686,6 +686,7 @@ const testReplay = async () => {
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
+    const result = { success: 0, fail: 0 }
     const start = Math.round(Date.now() / 1000)
     await Promise.all(
         chunk.map(async (treepath) => {
@@ -723,6 +724,7 @@ const testReplay = async () => {
 
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
+                result.success++
                 console.log(
                     `> Snapshot ${treepath}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
@@ -731,18 +733,21 @@ const testReplay = async () => {
                     `\tDuration: ${end - start}s`,
                 )
             } catch (e) {
+                result.fail++
                 console.log(
                     `> Snapshot ${treepath}:`,
                     `\tRqTime: ${rqTime.toLocaleTimeString()}`,
                     `\tRsTime: EXPIRED`,
                     `\tMsgID: ${message_id}`,
                     `(${e.data?.local_error?.data?.exit_code})`,
+                    `\tError: ${e.message}`,
                 )
             }
         }),
     )
     const end = Math.round(Date.now() / 1000)
     console.log(`\nChunk total time: ${end - start}s`)
+    console.log(`Success/Fail: ${result.success}/${result.fail}`)
 }
 
 testReplay()
