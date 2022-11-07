@@ -664,12 +664,12 @@ const WALLET_ABI = {
     ],
 }
 const WALLET_ADDRESS =
-    '0:f0084a1164ab9fec87c023cc443383349ac2cbbae5ab2eac4a83c8a466276371'
+    '0:2497663a679acec5f088ec84378f92809de802fa57810ff8dccc27b85cd8d7a4'
 const WALLET_KEYS = {
-    public: '7389d5f8218667cddeef649b38ad34404b615324a49b3a8872287e38f93db5e8',
-    secret: '9617dc9b97d03d81cbfb84cde7c399f1059b94a06cd0d530e8e31a0dd9d87df1',
+    public: 'e9565efaf3759e71f1de363104fb24146cc2097acea025ba04062effaa7c8a1a',
+    secret: 'a8c7a1a7789c7e2b1356854217f4c202f2cd6d1037bbe2a2343d606d01350804',
 }
-const ENDPOINTS = ['https://vps23.ton.dev']
+const ENDPOINTS = ['https://gql.custler.net']
 
 TonClient.useBinaryLibrary(libNode)
 const client = new TonClient({
@@ -686,7 +686,7 @@ const client = new TonClient({
 
 const testReplay = async () => {
     const abi = abiSerialized(WALLET_ABI)
-    const chunk = Array.from(new Array(2000)).map(
+    const chunk = Array.from(new Array(10)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
@@ -703,7 +703,7 @@ const testReplay = async () => {
                     input: {
                         branch: 'main',
                         commit: '',
-                        repo: '0:e804269af056e7eb3cf373310fd6c6cd50833a2920e223a65a970041ea0422c2',
+                        repo: '0:11d6bd430519cff2e079c645b970cfeedab67ddf8badb0e4528c5d30cbe13166',
                         name: treepath,
                         snapshotdata: '',
                         snapshotipfs: null,
