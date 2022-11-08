@@ -669,7 +669,12 @@ const WALLET_KEYS = {
     public: 'e9565efaf3759e71f1de363104fb24146cc2097acea025ba04062effaa7c8a1a',
     secret: 'a8c7a1a7789c7e2b1356854217f4c202f2cd6d1037bbe2a2343d606d01350804',
 }
-const ENDPOINTS = ['https://gql.custler.net']
+const ENDPOINTS = [
+    'https://n01.fld.dapp.tonlabs.io/graphql',
+    'https://n02.fld.dapp.tonlabs.io/graphql',
+    'https://n03.fld.dapp.tonlabs.io/graphql',
+    'https://n04.fld.dapp.tonlabs.io/graphql',
+]
 
 TonClient.useBinaryLibrary(libNode)
 const client = new TonClient({
@@ -684,9 +689,17 @@ const client = new TonClient({
     },
 })
 
+const _sendMessageCallback = async (params, responseType) => {
+    console.log('_sendMessageCallback', params, responseType)
+}
+
+const _waitForTransactionCallback = (params, responseType) => {
+    console.log('_waitForTransactionCallback', params, responseType)
+}
+
 const testReplay = async () => {
     const abi = abiSerialized(WALLET_ABI)
-    const chunk = Array.from(new Array(10)).map(
+    const chunk = Array.from(new Array(1)).map(
         (_, index) => `filename-${Date.now()}-${index}`,
     )
 
@@ -719,13 +732,17 @@ const testReplay = async () => {
                     abi,
                     message,
                     send_events: false,
+                    _sendMessageCallback,
                 })
-                const { transaction } = await client.processing.wait_for_transaction({
-                    abi,
-                    message,
-                    shard_block_id,
-                    send_events: false,
-                })
+                const { transaction } = await client.processing.wait_for_transaction(
+                    {
+                        abi,
+                        message,
+                        shard_block_id,
+                        send_events: true,
+                    },
+                    _waitForTransactionCallback,
+                )
 
                 const rsTime = new Date()
                 const end = Math.round(Date.now() / 1000)
@@ -750,7 +767,7 @@ const testReplay = async () => {
                     `RqTime: ${rqTime.toLocaleTimeString()}`,
                     `RsTime: EXPIRED`,
                     `MsgID: ${message_id}`,
-                    `(${e.data?.local_error?.data?.exit_code})`,
+                    // `(${e.data?.local_error?.data?.exit_code})`,
                     `Error: ${e.message}`,
                 ]
                 console.log(logitem.join('\t'))
