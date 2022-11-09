@@ -13,22 +13,22 @@ const WALLET_KEYS = {
 }
 
 const _sendMessage = async (filename) => {
-    const _sendMessageCallback = async (params, responseType) => {
-        const logitem = [
-            '[EVENT]',
-            `Response\t${responseType}`,
-            `Params\t${JSON.stringify(params)}\n`,
-        ]
+    const _sendMessageCallback = async (params) => {
+        const logitem = ['[EVENT]', `Params\t${JSON.stringify(params)}\n`]
         logitems.push(logitem.join('\n'))
     }
 
-    const _waitForTransactionCallback = (params, responseType) => {
-        const logitem = [
-            '[EVENT]',
-            `Response\t${responseType}`,
-            `Params\t${JSON.stringify(params)}\n`,
-        ]
-        logitems.push(logitem.join('\n'))
+    const _waitForTransactionCallback = (params) => {
+        const kind = params.json?.kind ? `Kind: ${params.json.kind}` : null
+        const error = params.error ? JSON.stringify(params.error) : null
+        const msgid = params.message_id ? `MsgID: ${params.message_id}` : null
+        const blockid = params.json?.block_id ? `BlockID: ${params.json.block_id}` : null
+        const shblockid = params.shard_block_id
+            ? `ShardBlockID: ${params.shard_block_id}`
+            : null
+
+        const logitem = [`[${params.type}]`, kind, error, msgid, blockid, shblockid]
+        logitems.push(logitem.filter((item) => !!item).join('\t'))
     }
 
     const logitems = []
