@@ -105,7 +105,7 @@ const _sendMessage = async (filename) => {
         console.log(logitem.join('\t'))
         logitems.push(logitem.join('\t'))
 
-        fs.writeFileSync(`./output/${filename}.log`, logitems.join('\n'))
+        fs.writeFile(`./output/${filename}.log`, logitems.join('\n'))
     }
 }
 
