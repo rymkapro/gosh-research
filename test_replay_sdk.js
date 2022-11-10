@@ -14,8 +14,14 @@ const WALLET_KEYS = {
 
 const _sendMessage = async (filename) => {
     const _sendMessageCallback = async (params) => {
-        const logitem = ['[EVENT]', `Params\t${JSON.stringify(params)}\n`]
-        logitems.push(logitem.join('\n'))
+        const error = params.error ? JSON.stringify(params.error) : null
+        const msgid = params.message_id ? `MsgID: ${params.message_id}` : null
+        const shblockid = params.shard_block_id
+            ? `ShardBlockID: ${params.shard_block_id}`
+            : null
+
+        const logitem = [`[${params.type}]`, error, msgid, shblockid]
+        logitems.push(logitem.filter((item) => !!item).join('\t'))
     }
 
     const _waitForTransactionCallback = (params) => {
@@ -26,8 +32,12 @@ const _sendMessage = async (filename) => {
         const shblockid = params.shard_block_id
             ? `ShardBlockID: ${params.shard_block_id}`
             : null
+        const json =
+            kind && kind.search('RejectedByCollator') >= 0
+                ? JSON.stringify(params.json)
+                : null
 
-        const logitem = [`[${params.type}]`, kind, error, msgid, blockid, shblockid]
+        const logitem = [`[${params.type}]`, kind, json, error, msgid, blockid, shblockid]
         logitems.push(logitem.filter((item) => !!item).join('\t'))
     }
 
@@ -53,12 +63,14 @@ const _sendMessage = async (filename) => {
     const rqTime = new Date()
     try {
         const start = Math.round(Date.now() / 1000)
-        const { shard_block_id } = await client.processing.send_message({
-            abi,
-            message,
-            send_events: false,
+        const { shard_block_id } = await client.processing.send_message(
+            {
+                abi,
+                message,
+                send_events: true,
+            },
             _sendMessageCallback,
-        })
+        )
         const { transaction } = await client.processing.wait_for_transaction(
             {
                 abi,
