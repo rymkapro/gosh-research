@@ -105,7 +105,7 @@ const _sendMessage = async (filename) => {
         console.log(logitem.join('\t'))
         logitems.push(logitem.join('\t'))
 
-        fs.writeFile(`./output/${filename}.log`, logitems.join('\n'))
+        fs.writeFileSync(`./output/${filename}.log`, logitems.join('\n'))
     }
 }
 
@@ -121,8 +121,17 @@ const testReplay = async (chunkSize) => {
 }
 
 const main = async () => {
-    const [chunkSize = 1] = process.argv.slice(2)
-    await testReplay(+chunkSize)
+    const [chunkSize = 1, intervalMs = 0] = process.argv.slice(2)
+
+    if (+intervalMs === 0) {
+        await testReplay(+chunkSize)
+        return
+    }
+
+    while (true) {
+        testReplay(+chunkSize)
+        await new Promise((resolve) => setTimeout(resolve, +intervalMs))
+    }
 }
 
 main()
