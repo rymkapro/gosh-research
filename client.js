@@ -13,7 +13,7 @@ const ENDPOINTS = [
 const client = new TonClient({
     network: {
         endpoints: ENDPOINTS,
-        queries_protocol: NetworkQueriesProtocol.HTTP,
+        queries_protocol: NetworkQueriesProtocol.WS,
         sending_endpoint_count: ENDPOINTS.length,
         message_retries_count: 0,
     },
