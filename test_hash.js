@@ -17,14 +17,14 @@ const client = new TonClient({
 
 const testTvmHash = async () => {
     // Prepare data as bytes
-    const data = Buffer.from('Test data').toString('hex')
+    const data = Buffer.from('Test').toString('hex')
 
     // Run contract getter
     const gosh = new Account(
         { abi: GoshABI },
         {
             client,
-            address: '0:870d2c26cf3cbfcac7e853e687b1bd6499584184af34a093ac34384b273a7a02',
+            address: '0:febf40a00a2ac21e28732c1a3395a7e79e04ff719af635bde886e51d5c565057',
         },
     )
     const result = await gosh.runLocal('getHash', { state: data })
