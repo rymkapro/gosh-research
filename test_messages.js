@@ -15,7 +15,7 @@ const client = new TonClient({
     },
 })
 
-async function getMessages(abi, variables, decode = false, all = false, messages) {
+const getMessages = async (abi, variables, decode = false, all = false, messages) => {
     const {
         address,
         msgType,
@@ -99,7 +99,7 @@ async function getMessages(abi, variables, decode = false, all = false, messages
     )
 }
 
-async function decodeMessageBody(abi, body, type) {
+const decodeMessageBody = async (abi, body, type) => {
     try {
         return await client.abi.decode_message_body({
             abi,
