@@ -4,10 +4,9 @@ const { libNode } = require('@eversdk/lib-node')
 TonClient.useBinaryLibrary(libNode)
 
 const ENDPOINTS = [
-    'https://n01.fld.dapp.tonlabs.io',
-    // 'https://n02.fld.dapp.tonlabs.io',
-    // 'https://n03.fld.dapp.tonlabs.io',
-    // 'https://n04.fld.dapp.tonlabs.io',
+    'https://bhs01.network.gosh.sh',
+    'https://eri01.network.gosh.sh',
+    'https://gra01.network.gosh.sh',
 ]
 
 const client = new TonClient({

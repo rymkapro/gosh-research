@@ -6,10 +6,10 @@ const GoshWalletAbi = require('./abis/goshwallet.abi.json')
 const client = require('./client')
 
 const WALLET_ADDRESS =
-    '0:90dab6198f00f58a16983cc50dd456121a1d8ceb8bb0296d1da0f8f31a20344f'
+    '0:936aaff5fe87b47d63c45972bfb4819915364b8f775ea90a4865dcac6c681fe0'
 const WALLET_KEYS = {
-    public: '7389d5f8218667cddeef649b38ad34404b615324a49b3a8872287e38f93db5e8',
-    secret: '9617dc9b97d03d81cbfb84cde7c399f1059b94a06cd0d530e8e31a0dd9d87df1',
+    public: '6e62ccb5af238477010c6191f4e2363de013587f80cdf11897c2ee738c8038fe',
+    secret: '43c20f8dca6ff37f18fa68af212360b923cfac62739b9ce24cc3d5d03243156c',
 }
 
 const _sendMessage = async (filename) => {
@@ -51,7 +51,7 @@ const _sendMessage = async (filename) => {
             input: {
                 branch: 'main',
                 commit: '',
-                repo: '0:4c92057e96e0abe9020b57339dc2cbe6ec0e4f29e0896738f78ec64d53baea30',
+                repo: '0:1d53f6956a3e794e079a13cafc397a1589d91e019e4af36a39aaa16c35a49201',
                 name: filename,
                 snapshotdata: '',
                 snapshotipfs: null,

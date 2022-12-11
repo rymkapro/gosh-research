@@ -1,7 +1,7 @@
 {
-  "dependencies": {
-    "@eversdk/appkit": "^0.3.1",
-    "@eversdk/core": "^1.38.0",
-    "@eversdk/lib-node": "^1.38.0"
-  }
+    "dependencies": {
+        "@eversdk/appkit": "^0.3.1",
+        "@eversdk/core": "^1.39.0",
+        "@eversdk/lib-node": "^1.39.0"
+    }
 }

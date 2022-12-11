@@ -24,8 +24,14 @@
                 { "name": "platformCode", "type": "cell" },
                 { "name": "clientCode", "type": "cell" },
                 { "name": "proposalCode", "type": "cell" },
+                { "name": "tokenforperson", "type": "uint128" },
                 { "name": "_tip3Root", "type": "address" }
             ],
+            "outputs": []
+        },
+        {
+            "name": "deployWallet",
+            "inputs": [],
             "outputs": []
         },
         {
@@ -72,22 +78,58 @@
             "outputs": []
         },
         {
-            "name": "setTombstoneDao",
-            "inputs": [{ "name": "description", "type": "string" }],
+            "name": "startProposalForUpgradeDao",
+            "inputs": [
+                { "name": "newversion", "type": "string" },
+                { "name": "description", "type": "string" },
+                { "name": "num_clients", "type": "uint128" }
+            ],
             "outputs": []
         },
         {
-            "name": "deployWalletDao",
+            "name": "startProposalForSetTombstoneDao",
+            "inputs": [
+                { "name": "description", "type": "string" },
+                { "name": "num_clients", "type": "uint128" }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "AloneDeployWalletDao",
             "inputs": [{ "name": "pubaddr", "type": "address[]" }],
             "outputs": []
         },
         {
-            "name": "deleteWalletDao",
-            "inputs": [{ "name": "pubaddr", "type": "address[]" }],
+            "name": "AloneSetConfigDao",
+            "inputs": [{ "name": "newtoken", "type": "uint128" }],
             "outputs": []
         },
         {
-            "name": "deployWallet",
+            "name": "startProposalForDeployWalletDao",
+            "inputs": [
+                { "name": "pubaddr", "type": "address[]" },
+                { "name": "num_clients", "type": "uint128" }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "startProposalForChangeTokenConfig",
+            "inputs": [
+                { "name": "tokenforperson", "type": "uint128" },
+                { "name": "num_clients", "type": "uint128" }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "startProposalForDeleteWalletDao",
+            "inputs": [
+                { "name": "pubaddr", "type": "address[]" },
+                { "name": "num_clients", "type": "uint128" }
+            ],
+            "outputs": []
+        },
+        {
+            "name": "deployWalletIn",
             "inputs": [],
             "outputs": []
         },
@@ -145,6 +187,7 @@
                         { "name": "commit", "type": "string" },
                         { "name": "patch", "type": "optional(bytes)" },
                         { "name": "ipfs", "type": "optional(string)" },
+                        { "name": "removeIpfs", "type": "bool" },
                         { "name": "sha1", "type": "string" },
                         { "name": "sha256", "type": "uint256" }
                     ],
@@ -226,16 +269,6 @@
             "outputs": []
         },
         {
-            "name": "updateConfig",
-            "inputs": [],
-            "outputs": []
-        },
-        {
-            "name": "setConfig",
-            "inputs": [{ "name": "limit_wallets", "type": "uint128" }],
-            "outputs": []
-        },
-        {
             "name": "deployTree",
             "inputs": [
                 { "name": "repoName", "type": "string" },
@@ -306,6 +339,11 @@
             "outputs": []
         },
         {
+            "name": "destroyWalletAll",
+            "inputs": [],
+            "outputs": []
+        },
+        {
             "name": "askForDestroy",
             "inputs": [],
             "outputs": []
@@ -316,7 +354,7 @@
             "outputs": [{ "name": "value0", "type": "cell" }]
         },
         {
-            "name": "getContentAdress",
+            "name": "getContentAddress",
             "inputs": [
                 { "name": "repoName", "type": "string" },
                 { "name": "commit", "type": "string" },
@@ -335,7 +373,7 @@
             "outputs": [{ "name": "value0", "type": "address" }]
         },
         {
-            "name": "getAddrRootGosh",
+            "name": "getAddrSystemContract",
             "inputs": [],
             "outputs": [{ "name": "value0", "type": "address" }]
         },
@@ -394,7 +432,10 @@
         {
             "name": "getVersion",
             "inputs": [],
-            "outputs": [{ "name": "value0", "type": "string" }]
+            "outputs": [
+                { "name": "value0", "type": "string" },
+                { "name": "value1", "type": "string" }
+            ]
         },
         {
             "name": "getDiffResult",
@@ -420,11 +461,6 @@
             "outputs": [{ "name": "value0", "type": "bool" }]
         },
         {
-            "name": "onTokenWalletDeployed",
-            "inputs": [{ "name": "wallet", "type": "address" }],
-            "outputs": []
-        },
-        {
             "name": "proposalIsCompleted",
             "inputs": [{ "name": "proposal", "type": "address" }],
             "outputs": []
@@ -441,6 +477,16 @@
         },
         {
             "name": "lockVoting",
+            "inputs": [{ "name": "amount", "type": "uint128" }],
+            "outputs": []
+        },
+        {
+            "name": "returnDAOBalance",
+            "inputs": [{ "name": "amount", "type": "uint128" }],
+            "outputs": []
+        },
+        {
+            "name": "acceptUnlock",
             "inputs": [{ "name": "amount", "type": "uint128" }],
             "outputs": []
         },
@@ -493,14 +539,6 @@
             "outputs": []
         },
         {
-            "name": "withdrawTokens",
-            "inputs": [
-                { "name": "address_to", "type": "address" },
-                { "name": "amount", "type": "uint128" }
-            ],
-            "outputs": []
-        },
-        {
             "name": "updateHead",
             "inputs": [],
             "outputs": []
@@ -511,70 +549,9 @@
             "outputs": []
         },
         {
-            "name": "onAcceptTokensMint",
-            "inputs": [
-                { "name": "value0", "type": "address" },
-                { "name": "amount", "type": "uint128" },
-                { "name": "gasTo", "type": "address" },
-                { "name": "value3", "type": "cell" }
-            ],
-            "outputs": []
-        },
-        {
-            "name": "onBounceTokensTransfer",
-            "inputs": [
-                { "name": "value0", "type": "address" },
-                { "name": "amount", "type": "uint128" },
-                { "name": "value2", "type": "address" }
-            ],
-            "outputs": []
-        },
-        {
-            "name": "onAcceptTokensTransfer",
-            "inputs": [
-                { "name": "value0", "type": "address" },
-                { "name": "amount", "type": "uint128" },
-                { "name": "value2", "type": "address" },
-                { "name": "value3", "type": "address" },
-                { "name": "gasTo", "type": "address" },
-                { "name": "value5", "type": "cell" }
-            ],
-            "outputs": []
-        },
-        {
-            "name": "updateTokenBalance",
+            "name": "m_pseudoDAOBalance",
             "inputs": [],
-            "outputs": []
-        },
-        {
-            "name": "onUpdateBalance",
-            "inputs": [{ "name": "amount", "type": "uint128" }],
-            "outputs": []
-        },
-        {
-            "name": "storeValue",
-            "inputs": [{ "name": "newValue", "type": "uint256" }],
-            "outputs": []
-        },
-        {
-            "name": "m_tokenRoot",
-            "inputs": [],
-            "outputs": [{ "name": "m_tokenRoot", "type": "address" }]
-        },
-        {
-            "name": "m_tokenWallet",
-            "inputs": [],
-            "outputs": [{ "name": "m_tokenWallet", "type": "address" }]
-        },
-        {
-            "name": "m_tokenBalance",
-            "inputs": [],
-            "outputs": [{ "name": "m_tokenBalance", "type": "uint128" }]
-        },
-        {
-            "name": "m_tokenWalletCode",
-            "inputs": [],
-            "outputs": [{ "name": "m_tokenWalletCode", "type": "cell" }]
+            "outputs": [{ "name": "m_pseudoDAOBalance", "type": "uint128" }]
         },
         {
             "name": "lockerTip3Wallet",
@@ -600,7 +577,7 @@
     "data": [
         { "key": 1, "name": "_goshdao", "type": "address" },
         { "key": 2, "name": "_index", "type": "uint128" },
-        { "key": 3, "name": "_goshroot", "type": "address" }
+        { "key": 3, "name": "_systemcontract", "type": "address" }
     ],
     "events": [],
     "fields": [
@@ -616,14 +593,13 @@
             "type": "tuple"
         },
         { "name": "__value", "type": "uint256" },
-        { "name": "m_tokenRoot", "type": "address" },
-        { "name": "m_tokenWallet", "type": "address" },
-        { "name": "m_tokenBalance", "type": "uint128" },
-        { "name": "m_tokenWalletCode", "type": "cell" },
         { "name": "_pubaddr", "type": "address" },
         { "name": "_goshdao", "type": "address" },
         { "name": "_index", "type": "uint128" },
         { "name": "nonce", "type": "uint256" },
+        { "name": "m_pseudoDAOBalance", "type": "uint128" },
+        { "name": "m_tokenRoot", "type": "address" },
+        { "name": "m_tokenWalletCode", "type": "cell" },
         { "name": "lockerTip3Wallet", "type": "address" },
         { "name": "initialized", "type": "bool" },
         { "name": "tip3VotingLocker", "type": "address" },
@@ -641,7 +617,8 @@
         { "name": "m_SMVClientCode", "type": "cell" },
         { "name": "m_lockerCode", "type": "cell" },
         { "name": "_access", "type": "optional(uint256)" },
-        { "name": "_goshroot", "type": "address" },
+        { "name": "DEFAULT_DAO_BALANCE", "type": "uint128" },
+        { "name": "_systemcontract", "type": "address" },
         { "name": "_rootpubaddr", "type": "address" },
         { "name": "_nameDao", "type": "string" },
         { "name": "_flag", "type": "bool" },
@@ -650,6 +627,7 @@
         { "name": "_last_time", "type": "uint128" },
         { "name": "_walletcounter", "type": "uint128" },
         { "name": "_limit_wallets", "type": "uint128" },
-        { "name": "_tombstone", "type": "bool" }
+        { "name": "_tombstone", "type": "bool" },
+        { "name": "timeMoney", "type": "uint128" }
     ]
 }
